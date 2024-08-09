@@ -12,7 +12,7 @@ module.exports.config = {
 
 module.exports.handleEvent = function({ api, event, client, __GLOBAL }) {
   var { threadID, messageID } = event;
-  if (event.body.indexOf("@Riyasat Ali")==0 || event.body.indexOf("riyasat")==0 || event.body.indexOf("Riyasat")==0 || event.body.indexOf("Riyasat Ali")==0) {
+  if (event.body.indexOf("@Daksh Rajpoot")==0 || event.body.indexOf("Daksh")==0 || event.body.indexOf("daksh")==0 || event.body.indexOf("Daksh Rajoot")==0) {
     var msg = {
         body: "𝐘𝐄 𝐃𝐄𝐊𝐇𝐎 𝐃𝐀𝐊𝐒𝐇 𝐉𝐈 𝐀 𝐆𝐘𝐄",
         attachment: fs.createReadStream(__dirname + `/noprefix/riyasat.jpg`)
