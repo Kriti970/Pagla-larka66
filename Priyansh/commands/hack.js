@@ -1,106 +1,125 @@
 module.exports.config = {
-  name: "hack",
-  version: "1.0.0",
+  name: "help",
+  version: "1.0.2",
   hasPermssion: 0,
-  credits: "khốn kiếp tên trộm",
-  description: "prank friends",
-  commandCategory: "Group",
-  usages: "@tag",
-  dependencies: {
-        "axios": "",
-        "fs-extra": ""
-  },
-  cooldowns: 0
+  credits: "Leiam Nash",
+  description: "commands list",
+  commandCategory: "system",
+  usages: "module name",
+  cooldowns: 1,
+  envConfig: {
+    autoUnsend: false,
+    delayUnsend: 300
+  }
 };
- 
-module.exports.wrapText = (ctx, name, maxWidth) => {
-        return new Promise(resolve => {
-                if (ctx.measureText(name).width < maxWidth) return resolve([name]);
-                if (ctx.measureText('Wy').width > maxWidth) return resolve(null);
-                const words = name.split(' ');
-                const lines = [];
-                let line = '';
-                while (words.length > 0) {
-                        let split = false;
-                        while (ctx.measureText(words[0]).width >= maxWidth) {
-                                const temp = words[0];
-                                words[0] = temp.slice(0, -1);
-                                if (split) words[1] = `${temp.slice(-1)}${words[1]}`;
-                                else {
-                                        split = true;
-                                        words.splice(1, 0, temp.slice(-1));
-                                }
-                        }
-                        if (ctx.measureText(`${line}${words[0]}`).width < maxWidth) line += `${words.shift()} `;
-                        else {
-                                lines.push(line.trim());
-                                line = '';
-                        }
-                        if (words.length === 0) lines.push(line.trim());
-                }
-                return resolve(lines);
-        });
+
+module.exports.languages = {
+  "en": {
+    "moduleInfo": "─────[ %1 ]──────\n\nUsage: %3\nCategory: %4\nWaiting time: %5 seconds(s)\nPermission: %6\nDescription: %2\n\nModule coded by %7",
+    "helpList": '[ There are %1 commands on this bot, Use: "%2help nameCommand" to know how to use! ]',
+    "user": "User",
+        "adminGroup": "Admin group",
+        "adminBot": "Admin bot"
+  }
+};
+
+module.exports.handleEvent = function ({ api, event, getText }) {
+  const { commands } = global.client;
+  const { threadID, messageID, body } = event;
+
+  if (!body || typeof body == "undefined" || body.indexOf("help") != 0) return;
+  const splitBody = body.slice(body.indexOf("help")).trim().split(/\s+/);
+  if (splitBody.length == 1 || !commands.has(splitBody[1].toLowerCase())) return;
+  const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};
+  const command = commands.get(splitBody[1].toLowerCase());
+  const prefix = (threadSetting.hasOwnProperty("PREFIX")) ? threadSetting.PREFIX : global.config.PREFIX;
+  return api.sendMessage(getText("moduleInfo", command.config.name, command.config.description, `${prefix}${command.config.name} ${(command.config.usages) ? command.config.usages : ""}`, command.config.commandCategory, command.config.cooldowns, ((command.config.hasPermssion == 0) ? getText("user") : (command.config.hasPermssion == 1) ? getText("adminGroup") : getText("adminBot")), command.config.credits), threadID, messageID);
 }
- 
-module.exports.run = async function ({ args, Users, Threads, api, event, Currencies }) {
-  const { loadImage, createCanvas } = require("canvas");
-  const fs = global.nodemodule["fs-extra"];
-  const axios = global.nodemodule["axios"];
-  let pathImg = __dirname + "/cache/background.png";
-  let pathAvt1 = __dirname + "/cache/Avtmot.png";
- 
- 
-  var id = Object.keys(event.mentions)[0] || event.senderID;
-  var name = await Users.getNameUser(id);
-  var ThreadInfo = await api.getThreadInfo(event.threadID);
- 
-  var background = [
- 
-    "https://i.imgur.com/VQXViKI.png"
-];
-  var rd = background[Math.floor(Math.random() * background.length)];
- 
-  let getAvtmot = (
-    await axios.get(
-      `https://graph.facebook.com/${id}/picture?width=720&height=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`,
-      { responseType: "arraybuffer" }
-    )
-  ).data;
-  fs.writeFileSync(pathAvt1, Buffer.from(getAvtmot, "utf-8"));
- 
-  let getbackground = (
-    await axios.get(`${rd}`, {
-      responseType: "arraybuffer",
-    })
-  ).data;
-  fs.writeFileSync(pathImg, Buffer.from(getbackground, "utf-8"));
- 
-  let baseImage = await loadImage(pathImg);
-  let baseAvt1 = await loadImage(pathAvt1);
- 
-  let canvas = createCanvas(baseImage.width, baseImage.height);
-  let ctx = canvas.getContext("2d");
-  ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-    ctx.font = "400 23px Arial";
-          ctx.fillStyle = "#1878F3";
-          ctx.textAlign = "start";
-         
-         
-          const lines = await this.wrapText(ctx, name, 1160);
-          ctx.fillText(lines.join('\n'), 200,497);//comment
-          ctx.beginPath();
- 
- 
-  ctx.drawImage(baseAvt1, 83, 437, 100, 101);
- 
-  const imageBuffer = canvas.toBuffer();
-  fs.writeFileSync(pathImg, imageBuffer);
-  fs.removeSync(pathAvt1);
-  return api.sendMessage({ body: ``, attachment: fs.createReadStream(pathImg) },
-      event.threadID,
-      () => fs.unlinkSync(pathImg),
-      event.messageID);
+
+module.exports. run = function({ api, event, args, getText }) {
+  const axios = require("axios");
+  const request = require('request');
+  const fs = require("fs-extra");
+  const { commands } = global.client;
+  const { threadID, messageID } = event;
+  const command = commands.get((args[0] || "").toLowerCase());
+  const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};
+  const { autoUnsend, delayUnsend } = global.configModule[this.config.name];
+  const prefix = (threadSetting.hasOwnProperty("PREFIX")) ? threadSetting.PREFIX : global.config.PREFIX;
+if (args[0] == "all") {
+    const command = commands.values();
+    var group = [], msg = "";
+    for (const commandConfig of command) {
+      if (!group.some(item => item.group.toLowerCase() == commandConfig.config.commandCategory.toLowerCase())) group.push({ group: commandConfig.config.commandCategory.toLowerCase(), cmds: [commandConfig.config.name] });
+      else group.find(item => item.group.toLowerCase() == commandConfig.config.commandCategory.toLowerCase()).cmds.push(commandConfig.config.name);
     }
- 
- 
-//nothing
+    group.forEach(commandGroup => msg += `☂︎ ${commandGroup.group.charAt(0).toUpperCase() + commandGroup.group.slice(1)} \n${commandGroup.cmds.join(' • ')}\n\n`);
+
+    return axios.get('https://apikanna.maduka9.repl.co').then(res => {
+    let ext = res.data.data.substring(res.data.data.lastIndexOf(".") + 1);
+      let admID = "100022944679426";
+
+      api.getUserInfo(parseInt(admID), (err, data) => {
+      if(err){ return console.log(err)}
+     var obj = Object.keys(data);
+    var firstname = data[obj].name.replace("@", "");
+    let callback = function () {
+        api.sendMessage({ body:`𝗖𝗼𝗺𝗺𝗮𝗻𝗱 𝗟𝗶𝘀𝘁\n\n` + msg + `\nSpamming the bot are strictly prohibited\n\nTotal Commands: ${commands.size}\n\nFor All Cmds Type help2\n\nDeveloper:\n「 𓆩⃝ᎡᎪᎽᎪΝ ᎪΝՏᎪᎡᏆ𓆩๏𓆪 」`, mentions: [{
+                           tag: firstname,
+                           id: admID,
+                           fromIndex: 0,
+                 }],
+            attachment: fs.createReadStream(__dirname + `/cache/472.${ext}`)
+        }, event.threadID, (err, info) => {
+        fs.unlinkSync(__dirname + `/cache/472.${ext}`);
+        if (autoUnsend == false) {
+            setTimeout(() => { 
+                return api.unsendMessage(info.messageID);
+            }, delayUnsend * 1000);
+        }
+        else return;
+    }, event.messageID);
+        }
+         request(res.data.data).pipe(fs.createWriteStream(__dirname + `/cache/472.${ext}`)).on("close", callback);
+     })
+      })
+};
+  if (!command) {
+    const arrayInfo = [];
+    const page = parseInt(args[0]) || 1;
+    const numberOfOnePage = 10;
+    let i = 0;
+    let msg = "";
+
+    for (var [name, value] of (commands)) {
+      name += ``;
+      arrayInfo.push(name);
+    }
+
+    arrayInfo.sort((a, b) => a.data - b.data);
+
+const first = numberOfOnePage * page - numberOfOnePage;
+    i = first;
+    const helpView = arrayInfo.slice(first, first + numberOfOnePage);
+
+
+    for (let cmds of helpView) msg += `「 ${++i} 」${global.config.PREFIX}${cmds}\n`;
+
+    const siu = `★𝗖𝗼𝗺𝗺𝗮𝗻𝗱 𝗟𝗶𝘀𝘁★\n━━━━━━━━━━━━━━━━`;
+
+ const text = `\n𝐏𝐀𝐆𝐄 (${page}/${Math.ceil(arrayInfo.length/numberOfOnePage)})\nFor All Cmds Type Help2\n━━━━━━━━━━━━━━━━\n「 𓆩⃝VIRAT SAINI𓆩๏𓆪 」`;
+    var link = [
+"https://i.imgur.com/ENXBzNR.jpeg", 
+"https://i.imgur.com/ENXBzNR.jpeg"
+      ]
+     var callback = () => api.sendMessage({ body: siu + "\n\n" + msg  + text, attachment: fs.createReadStream(__dirname + "/cache/leiamnashelp.jpg")}, event.threadID, () => fs.unlinkSync(__dirname + "/cache/leiamnashelp.jpg"), event.messageID);
+    return request(encodeURI(link[Math.floor(Math.random() * link.length)])).pipe(fs.createWriteStream(__dirname + "/cache/leiamnashelp.jpg")).on("close", () => callback());
+  } 
+const leiamname = getText("moduleInfo", command.config.name, command.config.description, `${(command.config.usages) ? command.config.usages : ""}`, command.config.commandCategory, command.config.cooldowns, ((command.config.hasPermssion == 0) ? getText("user") : (command.config.hasPermssion == 1) ? getText("adminGroup") : getText("adminBot")), command.config.credits);
+
+  var link = [ "https://i.imgur.com/ENXBzNR.jpeg", 
+  "https://i.imgur.com/ENXBzNR.jpeg"
+  ]
+    var callback = () => api.sendMessage({ body: leiamname, attachment: fs.createReadStream(__dirname + "/cache/leiamnashelp.jpg")}, event.threadID, () => fs.unlinkSync(__dirname + "/cache/leiamnashelp.jpg"), event.messageID);
+    return request(encodeURI(link[Math.floor(Math.random() * link.length)])).pipe(fs.createWriteStream(__dirname + "/cache/leiamnashelp.jpg")).on("close", () => callback());
+};
