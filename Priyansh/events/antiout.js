@@ -1,8 +1,8 @@
 module.exports.config = {
- name: "Prem.babu",
+ name: "antiout",
  eventType: ["log:unsubscribe"],
  version: "0.0.1",
- credits: "DungUwU",
+ credits: "𝙋𝙧𝙞𝙮𝙖𝙣𝙨𝙝 𝙍𝙖𝙟𝙥𝙪𝙩",
  description: "Listen events"
 };
 
@@ -15,8 +15,8 @@ module.exports.run = async({ event, api, Threads, Users }) => {
  if (type == "self-separation") {
   api.addUserToGroup(event.logMessageData.leftParticipantFbId, event.threadID, (error, info) => {
    if (error) {
-    api.sendMessage(`𝐒𝐨𝐫𝐫𝐲 फैज अंसारी 🙏 ${name} को दोबारा 𝐀𝐝𝐝 नही कर पाया 𝐆𝐫𝐨𝐮𝐩 में 🥺 लगता है इसने मुझे 𝐁𝐥𝐨𝐜𝐤 कर दिया 😕`, event.threadID)
-   } else api.sendMessage(`भाग के जाने का नही ${name} बेबी ,🥀फैज अंसारी🌴 के 𝐏𝐞𝐫𝐦𝐢𝐬𝐬𝐢𝐨𝐧 के बिना कहीं नहीं जा सकते 😄 देखो फिर से 𝐀𝐝𝐝 कर दिया आपको 😌`, event.threadID);
+    api.sendMessage(`Basanti Isse Dubara Add Nahi Kar Payi🥺 ${name} Group Mai Lagta Hai Usne Mujhe Block Kardiya😥 :( `, event.threadID)
+   } else api.sendMessage(`Bhag Ke Jaane Ka Nhi, ${name} Baby, Dekho Phir Se Add Kardiya Aapko`, event.threadID);
   })
  }
 }
